@@ -1,7 +1,9 @@
-orderbook_analytics
+Orderbook Analytics
 ==============================
+A small assessment project.  
+Cleans and aggregates orderbook data.  
+Then creates predictive model for orderbook features.  
 
-A short description of the project.
 
 Project Organization
 ------------
