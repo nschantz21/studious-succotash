@@ -15,8 +15,9 @@ output_fields = [
 ]
 
 # add arg parse here
-input_fp = "data/external/res_20190610.csv"
-orders = pd.read_csv(input_fp)
+input_fp = "data/external/"
+file_ext = "res_20190610.csv"
+orders = pd.read_csv(input_fp+file_ext)
 
 # create empty orderbook
 orderbook = pd.DataFrame(columns=output_fields)
@@ -50,22 +51,36 @@ for index, row in orders.iterrows():
             sell_frame.update(r)
     
     # calculate top buys
-    print(
+    bids = (
         buy_frame
         .groupby("price")["quantity"]
         .sum()
         .sort_index(ascending=False)
-        .head()
-    )
+        .head(5)
+    ).reset_index()
 
     # calculate top sells
-    print(
+    asks = (
         sell_frame
         .groupby("price")["quantity"]
         .sum()
         .sort_index(ascending=True)
-        .head()
-    )
+        .head(5)
+    ).reset_index()
 
-    
+    output_dict = {
+        "timestamp": row["timestamp"],
+        "price": row["price"],
+        "side": row["side"],
+    }
 
+    if ~bids.empty:
+        output_dict.update(dict(zip(output_fields[3:8], bids["price"])))
+        output_dict.update(dict(zip(output_fields[8:13], bids["quantity"])))
+    if  ~asks.empty:
+        output_dict.update(dict(zip(output_fields[13:18], asks["price"])))
+        output_dict.update(dict(zip(output_fields[18:], asks["quantity"])))
+
+    orderbook = orderbook.append(pd.Series(output_dict), ignore_index=True)
+
+orderbook.to_csv("data/interim/ob_"+file_ext)
