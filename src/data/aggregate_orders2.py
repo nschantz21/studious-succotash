@@ -60,17 +60,29 @@ with open(input_file, 'r') as read_obj, open(output_file, 'w') as write_obj:
                 bid_dict[row["id"]] = [row['price'], row['quantity']]
         # asks
         else:
-            if row["action"] == 'a' or row["action"] == 'm':
+            if row["action"] == 'a':
                 ask_dict[row["id"]] = [row['price'], row['quantity']]
-            else: 
+                ask_price_dict[int(row["price"])] += int(row["quantity"])
+            elif row["action"] == 'd':
                 del ask_dict[row["id"]]
+                ask_price_dict[int(row["price"])] -= int(row["quantity"])
+            else:
+                # go look up what the previous version
+                p, q = ask_dict[row["id"]]
+                # update the price dict
+                ask_price_dict[int(p)] -= int(q)
+                # add the new order
+                ask_price_dict[int(row["price"])] += int(row["quantity"])
+                # update the id dict
+                ask_dict[row["id"]] = [row['price'], row['quantity']]
         
         # write to the output file
         # csv_writer.writerow(row)
         if count % 10000 == 0:
             print(count)
             # filter out zeros
-            print(sorted(bid_price_dict.items()))
+            print("bid:\n", sorted(filter(lambda x: x[1] > 0, bid_price_dict.items())))
+            print("ask:\n",sorted(filter(lambda x: x[1] > 0, ask_price_dict.items()), reverse=True))
         count+=1
 
 
