@@ -28,8 +28,8 @@ helper_fields = ["id", "price", "quantity"]
 buy_frame = pd.DataFrame(columns=helper_fields).set_index("id")
 sell_frame = pd.DataFrame(columns=helper_fields).set_index("id")
 
-chunksize=1000
-for chunk in pd.read_csv(input_fp, chunksize=chunksize, nrows=10000):
+chunksize=10**4
+for chunk in pd.read_csv(input_fp, chunksize=chunksize):
     # iterate through the orders
     for index, row in chunk.iterrows():
         side = row["side"]
@@ -88,11 +88,8 @@ for chunk in pd.read_csv(input_fp, chunksize=chunksize, nrows=10000):
         orderbook = orderbook.append(
             pd.Series(output_dict),
             ignore_index=True)
-        
-        if (index % 1000) == 0:
-            print(index)
-    
-    print(orderbook)
+    print(index)
+
 
 # fill in zero quantities
 quant_fields = list(orderbook.filter(regex="q"))
