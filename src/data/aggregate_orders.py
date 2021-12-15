@@ -21,27 +21,51 @@ orders = pd.read_csv(input_fp)
 # create empty orderbook
 orderbook = pd.DataFrame(columns=output_fields)
 
-helper_fields = ["timestamp", "side", "id", "quantity"]
-buy_frame = pd.DataFrame(columns=helper_fields).set_index(helper_fields[:-1])
-sell_frame = pd.DataFrame(columns=helper_fields).set_index(helper_fields[:-1])
+helper_fields = ["id", "price", "quantity"]
+
+buy_frame = pd.DataFrame(columns=helper_fields).set_index("id")
+sell_frame = pd.DataFrame(columns=helper_fields).set_index("id")
 
 # iterate through the orders
 for index, row in orders.iterrows():
     side = row["side"]
     action = row["action"]
-    print(row)
+    r = row.to_frame().T[helper_fields].set_index("id")
 
-    rw = row.to_frame().set_index(helper_fields[:-1])
     if side == 'b':
-        ob_helper = buy_frame
+        if action == "a":
+            buy_frame = buy_frame.append(r)
+        elif action == "d":
+            buy_frame.drop(labels=r.index, inplace=True)
+        else:
+            # modified orders
+            buy_frame.update(r)
     else:
-        ob_helper = sell_frame
+        if action == "a":
+            sell_frame = sell_frame.append(r)
+        elif action == "d":
+            sell_frame.drop(labels=r.index, inplace=True)
+        else:
+            # modified orders
+            sell_frame.update(r)
     
-    if action == "b":
-        ob_helper.loc[rw.index] += rw["quantity"]
-    if action == "d":
-        ob_helper[hash("".join(row[["timestamp", "side", "id"]].values))] -= row["quantity"]
-    else:
-        ob_helper[hash(row[["timestamp", "side", "id"]].values)] = row["quantity"]
+    # calculate top buys
+    print(
+        buy_frame
+        .groupby("price")["quantity"]
+        .sum()
+        .sort_index(ascending=False)
+        .head()
+    )
+
+    # calculate top sells
+    print(
+        sell_frame
+        .groupby("price")["quantity"]
+        .sum()
+        .sort_index(ascending=True)
+        .head()
+    )
+
     
-    print(ob_helper)
+
