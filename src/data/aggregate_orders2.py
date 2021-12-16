@@ -73,8 +73,8 @@ with open(input_file, 'r') as read_obj, open(output_file, 'w') as write_obj:
                 # update the id dict
                 ask_dict[row["id"]] = [row['price'], row['quantity']]
         
-        sorted_bids = sorted(filter(lambda x: x[1] > 0, bid_price_dict.items()))
-        sorted_asks = sorted(filter(lambda x: x[1] > 0, ask_price_dict.items()), reverse=True)
+        sorted_bids = sorted(filter(lambda x: x[1] > 0, bid_price_dict.items()), reverse=True)
+        sorted_asks = sorted(filter(lambda x: x[1] > 0, ask_price_dict.items()))
 
         topn = 5
         best_bids = sorted_bids[:topn]
