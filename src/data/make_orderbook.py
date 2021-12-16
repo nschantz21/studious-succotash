@@ -11,6 +11,7 @@ output_fields = [
     'ap0', 'ap1', 'ap2', 'ap3', 'ap4',
     'aq0', 'aq1', 'aq2', 'aq3', 'aq4',
 ]
+topn = 5
 
 # command line interface
 parser = argparse.ArgumentParser(description="Generate Orderbook from orders")
@@ -76,7 +77,6 @@ with open(input_file, 'r') as read_obj, open(output_file, 'w') as write_obj:
         sorted_bids = sorted(filter(lambda x: x[1] > 0, bid_price_dict.items()), reverse=True)
         sorted_asks = sorted(filter(lambda x: x[1] > 0, ask_price_dict.items()))
 
-        topn = 5
         best_bids = sorted_bids[:topn]
         #worst_bids = sorted_bids[-5:]
         best_asks = sorted_asks[:topn]
@@ -105,5 +105,4 @@ with open(input_file, 'r') as read_obj, open(output_file, 'w') as write_obj:
         if count % 10000 == 0:
             print(count)
         count+=1
-
 
