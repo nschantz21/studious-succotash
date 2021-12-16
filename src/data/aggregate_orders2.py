@@ -1,6 +1,6 @@
 # imports
 import argparse
-from csv import reader, DictReader, DictWriter
+from csv import DictReader, DictWriter
 from collections import defaultdict
 
 # constants
@@ -38,10 +38,7 @@ with open(input_file, 'r') as read_obj, open(output_file, 'w') as write_obj:
     csv_writer.writeheader()
 
     for row in csv_reader:
-        #bid_orderbook = defaultdict(int)
-        #ask_orderbook = defaultdict(int)
         # bids
-
         if row["side"] == 'b':
             if row["action"] == 'a':
                 bid_dict[row["id"]] = [row['price'], row['quantity']]
@@ -76,13 +73,37 @@ with open(input_file, 'r') as read_obj, open(output_file, 'w') as write_obj:
                 # update the id dict
                 ask_dict[row["id"]] = [row['price'], row['quantity']]
         
+        sorted_bids = sorted(filter(lambda x: x[1] > 0, bid_price_dict.items()))
+        sorted_asks = sorted(filter(lambda x: x[1] > 0, ask_price_dict.items()), reverse=True)
+
+        topn = 5
+        best_bids = sorted_bids[:topn]
+        #worst_bids = sorted_bids[-5:]
+        best_asks = sorted_asks[:topn]
+        #worst_asks = sorted_asks[-5:]
+
         # write to the output file
-        # csv_writer.writerow(row)
+        output_dict = {
+            "timestamp":row["timestamp"],
+            "side":row["side"],
+            "price":row["price"],
+        }
+
+        for x in range(topn):
+            output_dict["bq{}".format(x)] = 0
+            output_dict["aq{}".format(x)] = 0
+
+        for x in range(len(best_bids)):
+            output_dict["bp{}".format(x)] = best_bids[x][0]
+            output_dict["bq{}".format(x)] = best_bids[x][1]
+
+        for x in range(len(best_asks)):
+            output_dict["ap{}".format(x)] = best_asks[x][0]
+            output_dict["aq{}".format(x)] = best_asks[x][1]
+
+        csv_writer.writerow(output_dict)
         if count % 10000 == 0:
             print(count)
-            # filter out zeros
-            print("bid:\n", sorted(filter(lambda x: x[1] > 0, bid_price_dict.items())))
-            print("ask:\n",sorted(filter(lambda x: x[1] > 0, ask_price_dict.items()), reverse=True))
         count+=1
 
 
