@@ -8,6 +8,8 @@ Then creates predictive model for orderbook features.
 If you put the 3rqtest.zip file in `data/external`, then you can run the make file.  
 The data will be processed, the features created, the models trained, and the predictions generated.
 
+You will need to install the src local package to run the make file.
+
 Project Organization
 ------------
 

@@ -42,3 +42,8 @@ predict_models:
 	for date in 10 11 12 13 14 ; do \
 		python -m src.models.predict_model 201906$$date 201906$$date ; \
 	done
+
+clean:
+	find data/ -name '*.csv' -delete
+	rm -rf data/raw/codetest
+
