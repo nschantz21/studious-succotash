@@ -10,6 +10,7 @@ output_fields = [
     'bq0', 'bq1', 'bq2', 'bq3', 'bq4',
     'ap0', 'ap1', 'ap2', 'ap3', 'ap4',
     'aq0', 'aq1', 'aq2', 'aq3', 'aq4',
+    "bid_vwap", "ask_vwap"
 ]
 topn = 5
 
@@ -74,13 +75,20 @@ with open(input_file, 'r') as read_obj, open(output_file, 'w') as write_obj:
                 # update the id dict
                 ask_dict[row["id"]] = [row['price'], row['quantity']]
         
-        sorted_bids = sorted(filter(lambda x: x[1] > 0, bid_price_dict.items()), reverse=True)
-        sorted_asks = sorted(filter(lambda x: x[1] > 0, ask_price_dict.items()))
+        # sorted list of bids: high to low
+        sorted_bids = sorted(
+            filter(
+                lambda x: x[1] > 0,
+                bid_price_dict.items()),
+            reverse=True)
+        # sorted list of asks: low to high
+        sorted_asks = sorted(
+            filter(
+                lambda x: x[1] > 0,
+                ask_price_dict.items()))
 
         best_bids = sorted_bids[:topn]
-        #worst_bids = sorted_bids[-5:]
         best_asks = sorted_asks[:topn]
-        #worst_asks = sorted_asks[-5:]
 
         # write to the output file
         output_dict = {
@@ -100,6 +108,25 @@ with open(input_file, 'r') as read_obj, open(output_file, 'w') as write_obj:
         for x in range(len(best_asks)):
             output_dict["ap{}".format(x)] = best_asks[x][0]
             output_dict["aq{}".format(x)] = best_asks[x][1]
+        
+
+        # TODO: This could be sped up
+        # making a vwap feature
+        total_bids = sum(bid_price_dict.values())
+        if total_bids > 0:
+            bid_cum_sum = 0
+            for p, q in sorted_bids:
+                bid_cum_sum += (p*q)
+            bid_vwap = bid_cum_sum / total_bids
+            output_dict["bid_vwap"] = bid_vwap
+
+        total_asks = sum(ask_price_dict.values())
+        if total_asks > 0:
+            ask_cum_sum = 0
+            for p, q in sorted_asks:
+                ask_cum_sum += (p*q)
+            ask_vwap = ask_cum_sum / total_asks
+            output_dict["ask_vwap"] = ask_vwap
 
         csv_writer.writerow(output_dict)
         if count % 10000 == 0:
