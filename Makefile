@@ -23,9 +23,22 @@ orderbooks:
     data/interim/20190614.csv
     
 features:
-    #echo "Making Features"
-	python -m src.features.build_features
-    # I would make this more generalized with more time
+	echo "Making Features"
+	python -m src.features.build_features 20190610
+	python -m src.features.build_features 20190611
+	python -m src.features.build_features 20190612
+	python -m src.features.build_features 20190613
+	python -m src.features.build_features 20190614
 
-#model:
-    #echo "Making the Model"
+train_models:
+	echo "Making the Model"
+	python -m src.models.train_model 20190610
+	python -m src.models.train_model 20190611
+	python -m src.models.train_model 20190612
+	python -m src.models.train_model 20190613
+	python -m src.models.train_model 20190614
+
+predict_models:
+	for date in 10 11 12 13 14 ; do \
+		python -m src.models.predict_model 201906$$date 201906$$date ; \
+	done

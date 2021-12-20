@@ -1,15 +1,23 @@
 # imports
 import pandas as pd
 import random
+import argparse
+
+
 
 # constants
-input_file_name = "20190612"
-input_data_fp = "data/interim/{}.csv".format(input_file_name)
 
 p = 0.1  # percent of lines in file to sample
 random.seed(42)
 liquidity_steps_forward = 5000
 
+# arg parser
+parser = argparse.ArgumentParser()
+parser.add_argument("input_file_name", type=str)
+args = parser.parse_args()
+
+input_file_name = args.input_file_name
+input_data_fp = "data/interim/{}.csv".format(input_file_name)
 # import sample of data
 df = pd.read_csv(
          input_data_fp,
